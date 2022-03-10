@@ -1,21 +1,38 @@
-const express = require(`express`)
-const app = express()
+const express = require(`express`);
+const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
-// call karyawan controller
-let karyawanController = require("../controllers/karyawanController")
+let karyawanControl = require("../controllers/karyawanControl");
+const userValidator = require("../middlewares/userValidator");
+const authorization = require("../middlewares/authorization");
 
-// endpoint untuk data siswa
-app.get("/", karyawanController.getDataKaryawan)
+//end point GET untuk menampilkan data karyawan
+app.get("/", [authorization.authorization], karyawanControl.getDataKaryawan);
 
-// endpoint untuk add siswa
-app.post("/", karyawanController.addDataKaryawan)
+app.post("/find", [authorization.authorization], karyawanControl.findUser);
 
-// endpoint untuk edit siswa
-app.put("/:id_karyawan", karyawanController.editDataKaryawan)
+//end point POST untuk menambah data karyawan
+app.post(
+  "/",
+  [userValidator.validate, authorization.authorization],
+  karyawanControl.addDataKaryawan
+);
 
-// endpoint untuk delete siswa
-app.delete("/:id_karyawan", karyawanController.deleteDataKaryawan)
+//end point PUT untuk mengedit data karyawan
+app.put(
+  "/:id_karyawan",
+  [authorization.authorization],
+  karyawanControl.editDataKaryawan
+);
 
-module.exports = app
+//end point DELETE untuk menghapus data karyawan
+app.delete(
+  "/:id_karyawan",
+  [authorization.authorization],
+  karyawanControl.deleteDataKaryawan
+);
+
+app.post("/auth", karyawanControl.authentication);
+
+module.exports = app;
